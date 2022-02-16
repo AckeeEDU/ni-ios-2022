@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<playground version='6.0' target-platform='ios' display-mode='raw'>
+    <pages>
+        <page name='Introduction'/>
+        <page name='Protocols'/>
+        <page name='Requirement vs extension'/>
+        <page name='System protocols'/>
+        <page name='Self requirement'/>
+        <page name='Conditional protocol conformance'/>
+        <page name='Generics'/>
+        <page name='Generic + protocols'/>
+        <page name='Custom operators'/>
+        <page name='Property wrappers'/>
+    </pages>
+</playground>
