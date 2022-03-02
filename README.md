@@ -11,6 +11,15 @@
 
 ### 02 UIKit
 
+* Project structure
+* Storyboards, View debugger
+* UIView, UIViewController, lifecycle
+* Frame vs. bounds
+* Autolayout, Layout guides
+* NSConstraints, SnapKit
+* Package managers, Swift Package Manager
+* UIStackView, UINavigationController, UITabBarController
+
 ### 03 UIScrollView, UICollectionView, UITableView
 
 ### 04 SwiftUI
