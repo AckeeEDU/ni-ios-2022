@@ -20,15 +20,21 @@
 * Package managers, Swift Package Manager
 * UIStackView, UINavigationController, UITabBarController
 
-### 03 UIScrollView, UICollectionView, UITableView
+### 03 SwiftUI
 
-### 04 SwiftUI
+* VStack, HStack, ZStack, Text
+* ViewModifiers
+* SwiftUI layout system
+* NavigationView, programatic navigation
+* GeometryReader
 
-### 05 MVVM + Combine + Async/await
+### 04 Async/Await
 
-### 06 MVVM + Combine + Async/await
+### 05 Combine
 
-### 07 MVVM + Combine + Async/await
+### 06 Architectures – overview
+
+### 07 Architectures - case study
 
 ### 08 DI + Testy
 
