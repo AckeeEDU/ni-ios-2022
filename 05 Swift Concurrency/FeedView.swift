@@ -54,6 +54,7 @@ struct FeedView_Previews: PreviewProvider {
     }
 }
 
+@MainActor
 final class FeedViewModel: ObservableObject {
     @Published fileprivate(set) var state = LoadingState<[Post], Error>.data([])
     
@@ -68,22 +69,31 @@ final class FeedViewModel: ObservableObject {
     }
     
     func fetchFeed() {
-        state = .loading
-        
-        api.feedPublisher()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    if self?.state.isLoading == true {
-                        self?.state = .data([])
-                    }
-                case .failure(let error):
-                    self?.state =  .error(error)
-                }
-            } receiveValue: { [weak self] posts in
-                self?.state = .data(posts)
+        Task {
+            state = .loading
+            
+            do {
+                let posts = try await api.fetchFeed()
+                self.state = .data(posts)
+            } catch {
+                self.state = .error(error)
             }
-            .store(in: &cancellables)
+        }
+        
+//        api.feedPublisher()
+//            .receive(on: RunLoop.main)
+//            .sink { [weak self] completion in
+//                switch completion {
+//                case .finished:
+//                    if self?.state.isLoading == true {
+//                        self?.state = .data([])
+//                    }
+//                case .failure(let error):
+//                    self?.state =  .error(error)
+//                }
+//            } receiveValue: { [weak self] posts in
+//                self?.state = .data(posts)
+//            }
+//            .store(in: &cancellables)
     }
 }

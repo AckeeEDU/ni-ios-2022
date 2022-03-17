@@ -4,6 +4,8 @@ import Foundation
 public protocol APIServicing {
     func feedPublisher() -> AnyPublisher<[Post], Error>
     func commentsPublisher(postID: String) -> AnyPublisher<[Comment], Error>
+    func fetchFeed() async throws -> [Post]
+    func fetchComments(postID: String) async throws -> [Comment]
 }
 
 final class TestAPIService: APIServicing {
@@ -21,6 +23,14 @@ final class TestAPIService: APIServicing {
     
     func commentsPublisher(postID: String) -> AnyPublisher<[Comment], Error> {
         commentsPublisherBody(postID)
+    }
+    
+    func fetchFeed() async throws -> [Post] {
+        []
+    }
+    
+    func fetchComments(postID: String) async throws -> [Comment] {
+        []
     }
 }
 
@@ -59,6 +69,14 @@ public final class APIService: APIServicing {
         }.resume()
     }
     
+    public func fetchFeed() async throws -> [Post] {
+        let url = URL(string: "https://fitstagram.ackee.cz/api/feed")!
+        
+        let data = try await session.data(from: url).0
+        return try JSONDecoder().decode([Post].self, from: data)
+    }
+
+    
     public func feedPublisher() -> AnyPublisher<[Post], Error> {
         Future { promise in
             self.feed(completion: promise)
@@ -96,5 +114,13 @@ public final class APIService: APIServicing {
         }
         .delay(for: 2, scheduler: RunLoop.current)
         .eraseToAnyPublisher()
+    }
+
+    public func fetchComments(postID: String) async throws -> [Comment] {
+        try await withUnsafeThrowingContinuation { continuation in
+            self.comments(postID: postID) { result in
+                continuation.resume(with: result)
+            }
+        }
     }
 }

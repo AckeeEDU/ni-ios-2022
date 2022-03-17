@@ -22,13 +22,14 @@
 		695E715F27E1E7FE00277886 /* AsyncApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncApp.swift; sourceTree = "<group>"; };
 		695E716027E1E7FE00277886 /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
 		695E716127E1E7FF00277886 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		695E716627E1E7FF00277886 /* Async.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Async.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		695E716627E1E7FF00277886 /* Swift Concurrency.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swift Concurrency.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		695E717E27E1E93D00277886 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		695E718027E1E94D00277886 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		695E718227E1E96800277886 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		695E718527E1E9BB00277886 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		695E718727E1ECF400277886 /* LoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingState.swift; sourceTree = "<group>"; };
 		695E718927E1F4FD00277886 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
+		6989A32B27E2384E00D43A09 /* Swift Concurrency.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = "Swift Concurrency.playground"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +46,7 @@
 		695E715927E1E7FE00277886 = {
 			isa = PBXGroup;
 			children = (
+				6989A32B27E2384E00D43A09 /* Swift Concurrency.playground */,
 				695E718427E1E9B100277886 /* Services */,
 				695E717D27E1E91700277886 /* Model */,
 				695E715F27E1E7FE00277886 /* AsyncApp.swift */,
@@ -58,7 +60,7 @@
 		695E716727E1E7FF00277886 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				695E716627E1E7FF00277886 /* Async.app */,
+				695E716627E1E7FF00277886 /* Swift Concurrency.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,9 +87,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		695E716527E1E7FF00277886 /* Async */ = {
+		695E716527E1E7FF00277886 /* Swift Concurrency */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 695E717727E1E7FF00277886 /* Build configuration list for PBXNativeTarget "Async" */;
+			buildConfigurationList = 695E717727E1E7FF00277886 /* Build configuration list for PBXNativeTarget "Swift Concurrency" */;
 			buildPhases = (
 				695E716227E1E7FF00277886 /* Sources */,
 				695E716327E1E7FF00277886 /* Frameworks */,
@@ -97,9 +99,9 @@
 			);
 			dependencies = (
 			);
-			name = Async;
+			name = "Swift Concurrency";
 			productName = "Async (iOS)";
-			productReference = 695E716627E1E7FF00277886 /* Async.app */;
+			productReference = 695E716627E1E7FF00277886 /* Swift Concurrency.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -117,7 +119,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 695E715D27E1E7FE00277886 /* Build configuration list for PBXProject "Async" */;
+			buildConfigurationList = 695E715D27E1E7FE00277886 /* Build configuration list for PBXProject "Swift Concurrency" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -130,7 +132,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				695E716527E1E7FF00277886 /* Async */,
+				695E716527E1E7FF00277886 /* Swift Concurrency */,
 			);
 		};
 /* End PBXProject section */
@@ -294,8 +296,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fit.cvut.Async;
-				PRODUCT_NAME = Async;
+				PRODUCT_BUNDLE_IDENTIFIER = fit.cvut.SwiftConcurrency;
+				PRODUCT_NAME = "Swift Concurrency";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -323,8 +325,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fit.cvut.Async;
-				PRODUCT_NAME = Async;
+				PRODUCT_BUNDLE_IDENTIFIER = fit.cvut.SwiftConcurrency;
+				PRODUCT_NAME = "Swift Concurrency";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -336,7 +338,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		695E715D27E1E7FE00277886 /* Build configuration list for PBXProject "Async" */ = {
+		695E715D27E1E7FE00277886 /* Build configuration list for PBXProject "Swift Concurrency" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				695E717527E1E7FF00277886 /* Debug */,
@@ -345,7 +347,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		695E717727E1E7FF00277886 /* Build configuration list for PBXNativeTarget "Async" */ = {
+		695E717727E1E7FF00277886 /* Build configuration list for PBXNativeTarget "Swift Concurrency" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				695E717827E1E7FF00277886 /* Debug */,

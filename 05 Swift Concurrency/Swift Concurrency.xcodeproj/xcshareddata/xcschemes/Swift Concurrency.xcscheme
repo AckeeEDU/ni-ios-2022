@@ -46,10 +46,19 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "695E716527E1E7FF00277886"
             BuildableName = "Async.app"
+            BlueprintName = "Swift Concurrency"
+            ReferencedContainer = "container:Swift Concurrency.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "695E716527E1E7FF00277886"
+            BuildableName = "Async.app"
             BlueprintName = "Async"
             ReferencedContainer = "container:Async.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

@@ -61,6 +61,7 @@ struct PostView_Preview: PreviewProvider {
     }
 }
 
+@MainActor
 final class PostViewModel: ObservableObject {
     @Published var commentsState = LoadingState<[Comment], Error>.data([])
     @Published var post: Post
@@ -78,20 +79,13 @@ final class PostViewModel: ObservableObject {
     func fetchComments() {
         commentsState = .loading
         
-        api.commentsPublisher(postID: post.id)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] completion in
-                switch completion {
-                case .finished:
-                    if self?.commentsState.isLoading == true {
-                        self?.commentsState = .data([])
-                    }
-                case .failure(let error):
-                    self?.commentsState =  .error(error)
-                }
-            } receiveValue: { [weak self] comments in
-                self?.commentsState = .data(comments)
+        Task {
+            do {
+                let comments = try await api.fetchComments(postID: post.id)
+                commentsState = .data(comments)
+            } catch {
+                commentsState = .error(error)
             }
-            .store(in: &cancellables)
+        }
     }
 }
