@@ -11,7 +11,15 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationView {
-                PopularMoviesListView(viewModel: PopularMoviesListViewModel())
+                PopularMoviesListView(
+                    viewModel: PopularMoviesListViewModel(
+                        fetchPopularMoviesUseCase: FetchPopularMoviesUseCase(
+                            popularMoviesRepository: PopularMoviesRepository(
+                                api: .live
+                            )
+                        )
+                    )
+                )
             }
             .tabItem {
                 Label("Popular", systemImage: "list.star")

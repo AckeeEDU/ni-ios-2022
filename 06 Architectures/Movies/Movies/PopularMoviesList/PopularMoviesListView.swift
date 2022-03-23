@@ -13,6 +13,13 @@ final class PopularMoviesListViewModel: ObservableObject {
 
     private var page = 1
     private var hasMoreContent = true
+    private let fetchPopularMoviesUseCase: FetchPopularMoviesUseCaseType
+
+    init(
+        fetchPopularMoviesUseCase: FetchPopularMoviesUseCaseType
+    ) {
+        self.fetchPopularMoviesUseCase = fetchPopularMoviesUseCase
+    }
 
     func fetchData() async {
         guard movies.isEmpty else { return }
@@ -32,7 +39,7 @@ final class PopularMoviesListViewModel: ObservableObject {
     private func fetchMovies(clean: Bool = false) async {
         guard clean || hasMoreContent else { return }
 
-        let movies = try! await API.live.trending(page)
+        let movies = try! await fetchPopularMoviesUseCase(page)
 
         guard !movies.isEmpty else {
             hasMoreContent = false
