@@ -10,6 +10,7 @@ import SwiftUI
 struct MovieDetailView: View {
     let movieID: String
     @State var movie: MovieDetail?
+    @State var isInWatchlist = false
 
     var body: some View {
         Group {
@@ -18,8 +19,11 @@ struct MovieDetailView: View {
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .task {
-                        movie = try! await API.live.detail(movieID)
+                    .onAppear {
+                        Task {
+                            movie = try! await API.live.detail(movieID)
+                            await updateWatchlistStatus()
+                        }
                     }
             }
         }
@@ -30,10 +34,19 @@ struct MovieDetailView: View {
                 Button {
                     Task {
                         guard let movie = movie?.listObject else { return }
-                        try! await API.live.addToWatchlist(movie)
+                        if isInWatchlist {
+                            try! await API.live.removeFromWatchlist(movie)
+                        } else {
+                            try! await API.live.addToWatchlist(movie)
+                        }
+                        await updateWatchlistStatus()
                     }
                 } label: {
-                    Image(systemName: "star")
+                    if isInWatchlist {
+                        Image(systemName: "star.fill")
+                    } else {
+                        Image(systemName: "star")
+                    }
                 }
             }
         }
@@ -56,6 +69,13 @@ struct MovieDetailView: View {
             }
             .padding()
         }
+    }
+
+    private func updateWatchlistStatus() async {
+        let settings = try! await API.live.settings()
+        let username = settings.user.username
+        let watchlist = try! await API.live.watchlist(username)
+        isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
     }
 }
 

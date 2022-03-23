@@ -14,6 +14,7 @@ struct API {
     let settings: () async throws -> UserSettings
     let watchlist: (String) async throws -> [PopularMovie]
     let addToWatchlist: (Movie) async throws -> Void
+    let removeFromWatchlist: (Movie) async throws -> Void
 }
 
 extension API {
@@ -61,9 +62,17 @@ extension API {
             request.httpMethod = "POST"
             request.httpBody = try JSONEncoder().encode(body)
 
-            let data = try await makeRequest(request)
+            _ = try await makeRequest(request)
+        },
+        removeFromWatchlist: { movie in
+            let body: [String: [Movie]] = [
+                "movies": [movie]
+            ]
+            var request = URLRequest(url: URL(string: "https://api.trakt.tv/sync/watchlist/remove")!)
+            request.httpMethod = "POST"
+            request.httpBody = try JSONEncoder().encode(body)
 
-            return
+            _ = try await makeRequest(request)
         }
     )
 }

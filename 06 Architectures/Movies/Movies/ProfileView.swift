@@ -48,8 +48,11 @@ struct ProfileView: View {
                     .padding(.top, 32)
 
                 ForEach(watchlist) { movie in
-                    Text(movie.movie.title)
-                        .padding(.vertical)
+                    NavigationLink(destination: MovieDetailView(movieID: movie.movie.ids.slug)) {
+                        Text(movie.movie.title)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical)
+                    }
 
                     Divider()
                 }
