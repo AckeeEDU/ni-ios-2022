@@ -12,14 +12,22 @@ final class MovieDetailViewModel: ObservableObject {
     @Published var isInWatchlist = false
 
     private let movieID: String
+    private let fetchMovieDetailUseCase: FetchMovieDetailUseCaseType
+    private let fetchWatchlistUseCase: FetchWatchlistUseCaseType
 
-    init(movieID: String) {
+    init(
+        movieID: String,
+        fetchMovieDetailUseCase: FetchMovieDetailUseCaseType,
+        fetchWatchlistUseCase: FetchWatchlistUseCaseType
+    ) {
         self.movieID = movieID
+        self.fetchMovieDetailUseCase = fetchMovieDetailUseCase
+        self.fetchWatchlistUseCase = fetchWatchlistUseCase
     }
 
     @MainActor
     func fetchData() async {
-        movie = try! await API.live.detail(movieID)
+        movie = try! await fetchMovieDetailUseCase(movieID)
         await updateWatchlistStatus()
     }
 
@@ -36,9 +44,7 @@ final class MovieDetailViewModel: ObservableObject {
 
     @MainActor
     private func updateWatchlistStatus() async {
-        let settings = try! await API.live.settings()
-        let username = settings.user.username
-        let watchlist = try! await API.live.watchlist(username)
+        let watchlist = try! await fetchWatchlistUseCase()
         isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
     }
 }
@@ -96,11 +102,5 @@ struct MovieDetailView: View {
             }
             .padding()
         }
-    }
-}
-
-struct MovieDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        MovieDetailView(viewModel: MovieDetailViewModel(movieID: "movie"))
     }
 }

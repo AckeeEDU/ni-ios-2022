@@ -57,9 +57,7 @@ struct PopularMoviesListView: View {
         ScrollView {
             LazyVStack(alignment: .leading) {
                 ForEach(viewModel.movies) { movie in
-                    NavigationLink {
-                        MovieDetailView(viewModel: MovieDetailViewModel(movieID: movie.movie.ids.slug))
-                    } label: {
+                    NavigationLink(destination: movieDetailView(movie)) {
                         popularMovieItem(movie)
                     }
                     .task {
@@ -97,5 +95,24 @@ struct PopularMoviesListView: View {
             .progressViewStyle(.circular)
             .frame(maxWidth: .infinity)
             .padding()
+    }
+
+    private func movieDetailView(_ movie: PopularMovie) -> MovieDetailView {
+        MovieDetailView(
+            viewModel: MovieDetailViewModel(
+                movieID: movie.movie.ids.slug,
+                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
+                    movieDetailRepository: MovieDetailRepository(
+                        api: .live
+                    )
+                ),
+                fetchWatchlistUseCase: FetchWatchlistUseCase(
+                    watchlistRepository: WatchlistRepository(
+                        api: .live,
+                        userSettingsRepository: UserSettingsRepository.live
+                    )
+                )
+            )
+        )
     }
 }

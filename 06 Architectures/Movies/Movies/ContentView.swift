@@ -18,7 +18,19 @@ struct ContentView: View {
             }
 
             NavigationView {
-                ProfileView(viewModel: ProfileViewModel())
+                ProfileView(
+                    viewModel: ProfileViewModel(
+                        fetchUserSettingsUseCase: FetchUserSettingsUseCase(
+                            userSettingsRepository: UserSettingsRepository.live
+                        ),
+                        fetchWatchlistUseCase: FetchWatchlistUseCase(
+                            watchlistRepository: WatchlistRepository(
+                                api: .live,
+                                userSettingsRepository: UserSettingsRepository.live
+                            )
+                        )
+                    )
+                )
             }
             .tabItem {
                 Label("Profile", systemImage: "person")
