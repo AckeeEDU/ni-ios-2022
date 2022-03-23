@@ -26,6 +26,7 @@
 		A338C36227EB4179007E78A6 /* ToggleWatchlistUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A338C36127EB4179007E78A6 /* ToggleWatchlistUseCase.swift */; };
 		A338C36427EB4B6A007E78A6 /* FetchPopularMoviesUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A338C36327EB4B6A007E78A6 /* FetchPopularMoviesUseCase.swift */; };
 		A338C36727EB4C13007E78A6 /* PopularMoviesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A338C36627EB4C13007E78A6 /* PopularMoviesRepository.swift */; };
+		A338C36B27EB5697007E78A6 /* AppDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = A338C36A27EB5697007E78A6 /* AppDependency.swift */; };
 		A344624C27E86B7F00DC2EDB /* MoviesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A344624B27E86B7F00DC2EDB /* MoviesApp.swift */; };
 		A344624E27E86B7F00DC2EDB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A344624D27E86B7F00DC2EDB /* ContentView.swift */; };
 		A344625027E86B8000DC2EDB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A344624F27E86B8000DC2EDB /* Assets.xcassets */; };
@@ -53,6 +54,7 @@
 		A338C36127EB4179007E78A6 /* ToggleWatchlistUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleWatchlistUseCase.swift; sourceTree = "<group>"; };
 		A338C36327EB4B6A007E78A6 /* FetchPopularMoviesUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchPopularMoviesUseCase.swift; sourceTree = "<group>"; };
 		A338C36627EB4C13007E78A6 /* PopularMoviesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularMoviesRepository.swift; sourceTree = "<group>"; };
+		A338C36A27EB5697007E78A6 /* AppDependency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependency.swift; sourceTree = "<group>"; };
 		A344624827E86B7F00DC2EDB /* Movies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Movies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A344624B27E86B7F00DC2EDB /* MoviesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesApp.swift; sourceTree = "<group>"; };
 		A344624D27E86B7F00DC2EDB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				A338C36527EB4BFA007E78A6 /* PopularMoviesList */,
 				A338C34427EA0208007E78A6 /* API.swift */,
 				A344624B27E86B7F00DC2EDB /* MoviesApp.swift */,
+				A338C36A27EB5697007E78A6 /* AppDependency.swift */,
 				A344624F27E86B8000DC2EDB /* Assets.xcassets */,
 				A344625C27E872EB00DC2EDB /* Info.plist */,
 				A344625127E86B8000DC2EDB /* Preview Content */,
@@ -232,6 +235,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A338C35E27EB3A2F007E78A6 /* FetchMovieDetailUseCase.swift in Sources */,
+				A338C36B27EB5697007E78A6 /* AppDependency.swift in Sources */,
 				A344625A27E870FE00DC2EDB /* LoginView.swift in Sources */,
 				A344624E27E86B7F00DC2EDB /* ContentView.swift in Sources */,
 				A338C35327EB1062007E78A6 /* FetchUserSettingsUseCase.swift in Sources */,

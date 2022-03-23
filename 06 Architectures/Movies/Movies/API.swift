@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol HasAPI {
+    var api: API { get }
+}
+
 struct API {
     let token: (String) async throws -> OAuthResponse
     let trending: (Int) async throws -> [PopularMovie]

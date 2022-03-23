@@ -88,10 +88,10 @@ struct ProfileView: View {
                     )
                 ),
                 fetchWatchlistUseCase: FetchWatchlistUseCase(
-                    watchlistRepository: WatchlistRepository.live
+                    watchlistRepository: dependencies.watchlistRepository
                 ),
                 toggleWatchlistUseCase: ToggleWatchlistUseCase(
-                    watchlistRepository: WatchlistRepository.live
+                    watchlistRepository: dependencies.watchlistRepository
                 )
             )
         )

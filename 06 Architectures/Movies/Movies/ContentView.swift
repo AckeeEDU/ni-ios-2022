@@ -29,10 +29,10 @@ struct ContentView: View {
                 ProfileView(
                     viewModel: ProfileViewModel(
                         fetchUserSettingsUseCase: FetchUserSettingsUseCase(
-                            userSettingsRepository: UserSettingsRepository.live
+                            userSettingsRepository: dependencies.userSettingsRepository
                         ),
                         fetchWatchlistUseCase: FetchWatchlistUseCase(
-                            watchlistRepository: WatchlistRepository.live
+                            watchlistRepository: dependencies.watchlistRepository
                         )
                     )
                 )

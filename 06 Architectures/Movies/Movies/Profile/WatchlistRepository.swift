@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol HasWatchlistRepository {
+    var watchlistRepository: WatchlistRepositoryType { get }
+}
+
 protocol WatchlistRepositoryType {
     func fetch() async throws -> [PopularMovie]
     func removeFromWatchlist(_ movie: Movie) async throws
@@ -15,34 +19,30 @@ protocol WatchlistRepositoryType {
 }
 
 final class WatchlistRepository: WatchlistRepositoryType {
-    static let live = WatchlistRepository(api: .live, userSettingsRepository: UserSettingsRepository.live)
-
+    typealias Dependencies = HasAPI & HasUserSettingsRepository
     private var watchlist: [PopularMovie]?
 
-    private let api: API
-    private let userSettingsRepository: UserSettingsRepositoryType
+    private let dependencies: Dependencies
 
-    private init(
-        api: API,
-        userSettingsRepository: UserSettingsRepositoryType
+    init(
+        dependencies: Dependencies
     ) {
-        self.api = api
-        self.userSettingsRepository = userSettingsRepository
+        self.dependencies = dependencies
     }
 
     func fetch() async throws -> [PopularMovie] {
-        guard let username = try await userSettingsRepository.username() else { return [] }
-        let watchlist = try await api.watchlist(username)
+        guard let username = try await dependencies.userSettingsRepository.username() else { return [] }
+        let watchlist = try await dependencies.api.watchlist(username)
         self.watchlist = watchlist
         return watchlist
     }
 
     func removeFromWatchlist(_ movie: Movie) async throws {
-        try await api.removeFromWatchlist(movie)
+        try await dependencies.api.removeFromWatchlist(movie)
     }
 
     func addToWatchlist(_ movie: Movie) async throws {
-        try await api.addToWatchlist(movie)
+        try await dependencies.api.addToWatchlist(movie)
     }
 
     func watchlist() async throws -> [PopularMovie] {
