@@ -11,14 +11,14 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationView {
-                PopularMoviesListView()
+                PopularMoviesListView(viewModel: PopularMoviesListViewModel())
             }
             .tabItem {
                 Label("Popular", systemImage: "list.star")
             }
 
             NavigationView {
-                ProfileView()
+                ProfileView(viewModel: ProfileViewModel())
             }
             .tabItem {
                 Label("Profile", systemImage: "person")

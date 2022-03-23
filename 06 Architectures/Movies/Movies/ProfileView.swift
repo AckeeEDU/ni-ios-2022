@@ -7,29 +7,43 @@
 
 import SwiftUI
 
+final class ProfileViewModel: ObservableObject {
+    @Published var isLoading = true
+    @Published var userSettings: UserSettings?
+    @Published var watchlist: [PopularMovie] = []
+
+    @MainActor
+    func fetchData() async {
+        let userSettings = try! await API.live.settings()
+        watchlist = try! await API.live.watchlist(userSettings.user.username)
+        self.userSettings = userSettings
+    }
+
+    @MainActor
+    func refreshData() async {
+        guard let username = userSettings?.user.username else { return }
+        watchlist = try! await API.live.watchlist(username)
+    }
+}
+
 struct ProfileView: View {
-    @State var isLoading = true
-    @State var userSettings: UserSettings?
-    @State var watchlist: [PopularMovie] = []
+    @StateObject var viewModel: ProfileViewModel
 
     var body: some View {
         Group {
-            if let userSettings = userSettings {
+            if let userSettings = viewModel.userSettings {
                 mainView(userSettings)
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .task {
-                        let userSettings = try! await API.live.settings()
-                        watchlist = try! await API.live.watchlist(userSettings.user.username)
-                        self.userSettings = userSettings
+                        await viewModel.fetchData()
                     }
             }
         }
         .navigationTitle("Profile")
         .task {
-            guard let username = userSettings?.user.username else { return }
-            watchlist = try! await API.live.watchlist(username)
+            await viewModel.refreshData()
         }
     }
 
@@ -47,8 +61,8 @@ struct ProfileView: View {
                     .font(.headline)
                     .padding(.top, 32)
 
-                ForEach(watchlist) { movie in
-                    NavigationLink(destination: MovieDetailView(movieID: movie.movie.ids.slug)) {
+                ForEach(viewModel.watchlist) { movie in
+                    NavigationLink(destination: MovieDetailView(viewModel: MovieDetailViewModel(movieID: movie.movie.ids.slug))) {
                         Text(movie.movie.title)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical)

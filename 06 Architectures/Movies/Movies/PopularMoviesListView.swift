@@ -7,60 +7,28 @@
 
 import SwiftUI
 
-struct PopularMoviesListView: View {
-    @State var movies: [PopularMovie] = []
-    @State var isLoading = false
-    @State var page = 1
-    @State var hasMoreContent = true
+final class PopularMoviesListViewModel: ObservableObject {
+    @Published var movies: [PopularMovie] = []
+    @Published var isLoading = false
 
-    var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading) {
-                ForEach(movies) { movie in
-                    NavigationLink {
-                        MovieDetailView(movieID: movie.movie.ids.slug)
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(movie.movie.title)
-                                .font(.headline)
-                                .padding(.horizontal)
+    private var page = 1
+    private var hasMoreContent = true
 
-                            Text(String(movie.movie.year))
-                                .padding(.horizontal)
-
-                            Divider()
-                        }
-                    }
-                    .onAppear {
-                        fetchNextMoviesIfNeeded(movie)
-                    }
-                }
-
-                if isLoading {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-            }
-        }
-        .task {
-            guard movies.isEmpty else { return }
-            await fetchMovies(clean: true)
-        }
-        .navigationTitle("Popular movies")
+    func fetchData() async {
+        guard movies.isEmpty else { return }
+        await fetchMovies(clean: true)
     }
 
-    private func fetchNextMoviesIfNeeded(_ item: PopularMovie) {
-        if movies.last?.id == item.id {
-            isLoading = true
-            Task {
-                await fetchMovies()
-                isLoading = false
-            }
-        }
+    @MainActor
+    func fetchNextMoviesIfNeeded(_ item: PopularMovie) async {
+        guard movies.last?.id == item.id else { return }
+
+        isLoading = true
+        await fetchMovies()
+        isLoading = false
     }
 
+    @MainActor
     private func fetchMovies(clean: Bool = false) async {
         guard clean || hasMoreContent else { return }
 
@@ -79,5 +47,55 @@ struct PopularMoviesListView: View {
         }
 
         page += 1
+    }
+}
+
+struct PopularMoviesListView: View {
+    @StateObject var viewModel: PopularMoviesListViewModel
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading) {
+                ForEach(viewModel.movies) { movie in
+                    NavigationLink {
+                        MovieDetailView(viewModel: MovieDetailViewModel(movieID: movie.movie.ids.slug))
+                    } label: {
+                        popularMovieItem(movie)
+                    }
+                    .task {
+                        await viewModel.fetchNextMoviesIfNeeded(movie)
+                    }
+                }
+
+                if viewModel.isLoading {
+                    loadingView
+                }
+            }
+        }
+        .task {
+            await viewModel.fetchData()
+        }
+        .navigationTitle("Popular movies")
+    }
+
+    private func popularMovieItem(_ movie: PopularMovie) -> some View {
+        VStack(alignment: .leading) {
+            Text(movie.movie.title)
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .padding(.horizontal)
+
+            Text(String(movie.movie.year))
+                .padding(.horizontal)
+
+            Divider()
+        }
+    }
+
+    private var loadingView: some View {
+        ProgressView()
+            .progressViewStyle(.circular)
+            .frame(maxWidth: .infinity)
+            .padding()
     }
 }

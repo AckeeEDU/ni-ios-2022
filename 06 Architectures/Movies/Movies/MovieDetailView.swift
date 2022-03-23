@@ -7,22 +7,55 @@
 
 import SwiftUI
 
+final class MovieDetailViewModel: ObservableObject {
+    @Published var movie: MovieDetail?
+    @Published var isInWatchlist = false
+
+    private let movieID: String
+
+    init(movieID: String) {
+        self.movieID = movieID
+    }
+
+    @MainActor
+    func fetchData() async {
+        movie = try! await API.live.detail(movieID)
+        await updateWatchlistStatus()
+    }
+
+    @MainActor
+    func toggleWatchlist() async {
+        guard let movie = movie?.listObject else { return }
+        if isInWatchlist {
+            try! await API.live.removeFromWatchlist(movie)
+        } else {
+            try! await API.live.addToWatchlist(movie)
+        }
+        await updateWatchlistStatus()
+    }
+
+    @MainActor
+    private func updateWatchlistStatus() async {
+        let settings = try! await API.live.settings()
+        let username = settings.user.username
+        let watchlist = try! await API.live.watchlist(username)
+        isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
+    }
+}
+
 struct MovieDetailView: View {
-    let movieID: String
-    @State var movie: MovieDetail?
-    @State var isInWatchlist = false
+    @StateObject var viewModel: MovieDetailViewModel
 
     var body: some View {
         Group {
-            if let movie = movie {
+            if let movie = viewModel.movie {
                 contentView(movie)
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .onAppear {
                         Task {
-                            movie = try! await API.live.detail(movieID)
-                            await updateWatchlistStatus()
+                            await viewModel.fetchData()
                         }
                     }
             }
@@ -33,16 +66,10 @@ struct MovieDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     Task {
-                        guard let movie = movie?.listObject else { return }
-                        if isInWatchlist {
-                            try! await API.live.removeFromWatchlist(movie)
-                        } else {
-                            try! await API.live.addToWatchlist(movie)
-                        }
-                        await updateWatchlistStatus()
+                        await viewModel.toggleWatchlist()
                     }
                 } label: {
-                    if isInWatchlist {
+                    if viewModel.isInWatchlist {
                         Image(systemName: "star.fill")
                     } else {
                         Image(systemName: "star")
@@ -70,17 +97,10 @@ struct MovieDetailView: View {
             .padding()
         }
     }
-
-    private func updateWatchlistStatus() async {
-        let settings = try! await API.live.settings()
-        let username = settings.user.username
-        let watchlist = try! await API.live.watchlist(username)
-        isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
-    }
 }
 
 struct MovieDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieDetailView(movieID: "movie")
+        MovieDetailView(viewModel: MovieDetailViewModel(movieID: "movie"))
     }
 }
