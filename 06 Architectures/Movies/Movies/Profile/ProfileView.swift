@@ -28,11 +28,6 @@ final class ProfileViewModel: ObservableObject {
         userSettings = try! await fetchUserSettingsUseCase()
         watchlist = try! await fetchWatchlistUseCase()
     }
-
-    @MainActor
-    func refreshData() async {
-        watchlist = try! await fetchWatchlistUseCase()
-    }
 }
 
 struct ProfileView: View {
@@ -45,17 +40,12 @@ struct ProfileView: View {
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .onAppear {
-                        Task {
-                            await viewModel.fetchData()
-                        }
-                    }
             }
         }
         .navigationTitle("Profile")
         .onAppear {
             Task {
-                await viewModel.refreshData()
+                await viewModel.fetchData()
             }
         }
     }
@@ -75,24 +65,7 @@ struct ProfileView: View {
                     .padding(.top, 32)
 
                 ForEach(viewModel.watchlist) { movie in
-                    NavigationLink(
-                        destination: MovieDetailView(
-                            viewModel: MovieDetailViewModel(
-                                movieID: movie.movie.ids.slug,
-                                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
-                                    movieDetailRepository: MovieDetailRepository(
-                                        api: .live
-                                    )
-                                ),
-                                fetchWatchlistUseCase: FetchWatchlistUseCase(
-                                    watchlistRepository: WatchlistRepository(
-                                        api: .live,
-                                        userSettingsRepository: UserSettingsRepository.live
-                                    )
-                                )
-                            )
-                        )
-                    ) {
+                    NavigationLink(destination: movieDetailView(movie)) {
                         Text(movie.movie.title)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical)
@@ -103,5 +76,24 @@ struct ProfileView: View {
             }
             .padding()
         }
+    }
+
+    private func movieDetailView(_ movie: PopularMovie) -> MovieDetailView {
+        MovieDetailView(
+            viewModel: MovieDetailViewModel(
+                movieID: movie.movie.ids.slug,
+                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
+                    movieDetailRepository: MovieDetailRepository(
+                        api: .live
+                    )
+                ),
+                fetchWatchlistUseCase: FetchWatchlistUseCase(
+                    watchlistRepository: WatchlistRepository.live
+                ),
+                toggleWatchlistUseCase: ToggleWatchlistUseCase(
+                    watchlistRepository: WatchlistRepository.live
+                )
+            )
+        )
     }
 }

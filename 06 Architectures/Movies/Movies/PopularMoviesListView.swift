@@ -107,10 +107,10 @@ struct PopularMoviesListView: View {
                     )
                 ),
                 fetchWatchlistUseCase: FetchWatchlistUseCase(
-                    watchlistRepository: WatchlistRepository(
-                        api: .live,
-                        userSettingsRepository: UserSettingsRepository.live
-                    )
+                    watchlistRepository: WatchlistRepository.live
+                ),
+                toggleWatchlistUseCase: ToggleWatchlistUseCase(
+                    watchlistRepository: WatchlistRepository.live
                 )
             )
         )

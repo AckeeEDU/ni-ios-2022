@@ -24,10 +24,7 @@ struct ContentView: View {
                             userSettingsRepository: UserSettingsRepository.live
                         ),
                         fetchWatchlistUseCase: FetchWatchlistUseCase(
-                            watchlistRepository: WatchlistRepository(
-                                api: .live,
-                                userSettingsRepository: UserSettingsRepository.live
-                            )
+                            watchlistRepository: WatchlistRepository.live
                         )
                     )
                 )

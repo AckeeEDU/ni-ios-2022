@@ -118,7 +118,7 @@ private func makeRequest(_ request: URLRequest) async throws -> Data {
         "trakt-api-key": "c97c817dedfab758e2d31af2323566f9872b8acfa438120466d09e4c7cb0c3ac"
     ], uniquingKeysWith: { $1 })
 
-    var (data, response) = try await URLSession.shared.data(for: request)
+    var (data, response) = try await dataRequest(for: request)
 
     if (response as? HTTPURLResponse)?.statusCode == 403 {
         await updateToken()
@@ -126,13 +126,22 @@ private func makeRequest(_ request: URLRequest) async throws -> Data {
         let accessToken = UserDefaults.standard.string(forKey: "accessToken") ?? ""
         request.allHTTPHeaderFields = headers.merging(["Authorization": "Bearer \(accessToken)"], uniquingKeysWith: { $1 })
 
-        (data, response) = try! await URLSession.shared.data(for: request)
+        (data, response) = try! await dataRequest(for: request)
     }
 
-    print((response as? HTTPURLResponse)!.statusCode)
+    return data
+}
+
+private func dataRequest(for request: URLRequest) async throws -> (Data, URLResponse) {
+    print("⬆️", request.url!.absoluteString)
+    if let body = request.httpBody {
+        print("BODY:", String(data: body, encoding: .utf8)!)
+    }
+    let (data, response) = try await URLSession.shared.data(for: request)
+    print("⬇️", request.url!.absoluteString, "[", (response as? HTTPURLResponse)?.statusCode ?? 0, "]")
     print(String(data: data, encoding: .utf8)!)
 
-    return data
+    return (data, response)
 }
 
 private func updateToken() async {

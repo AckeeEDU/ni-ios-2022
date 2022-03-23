@@ -14,15 +14,18 @@ final class MovieDetailViewModel: ObservableObject {
     private let movieID: String
     private let fetchMovieDetailUseCase: FetchMovieDetailUseCaseType
     private let fetchWatchlistUseCase: FetchWatchlistUseCaseType
+    private let toggleWatchlistUseCase: ToggleWatchlistUseCaseType
 
     init(
         movieID: String,
         fetchMovieDetailUseCase: FetchMovieDetailUseCaseType,
-        fetchWatchlistUseCase: FetchWatchlistUseCaseType
+        fetchWatchlistUseCase: FetchWatchlistUseCaseType,
+        toggleWatchlistUseCase: ToggleWatchlistUseCaseType
     ) {
         self.movieID = movieID
         self.fetchMovieDetailUseCase = fetchMovieDetailUseCase
         self.fetchWatchlistUseCase = fetchWatchlistUseCase
+        self.toggleWatchlistUseCase = toggleWatchlistUseCase
     }
 
     @MainActor
@@ -33,12 +36,9 @@ final class MovieDetailViewModel: ObservableObject {
 
     @MainActor
     func toggleWatchlist() async {
-        guard let movie = movie?.listObject else { return }
-        if isInWatchlist {
-            try! await API.live.removeFromWatchlist(movie)
-        } else {
-            try! await API.live.addToWatchlist(movie)
-        }
+        guard let movie = movie else { return }
+
+        try! await toggleWatchlistUseCase(movie)
         await updateWatchlistStatus()
     }
 
