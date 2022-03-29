@@ -55,7 +55,7 @@
 
 ## Semestrální úloha
 
-Semestrální práce bude váš jediný velký domácí úkol, na základě kterého získáte známku. Ideálně středně velká aplikace s 6 - 10 obrazovkami. Ze cvik máte k dispozici spoustu věcí a technologií, které můžete použít. Opět ideálně, když ukážete co nejvíce z nich. Vyžadovaná bude nějaká architektura (nechceme vidět všechnu logiku ve `View`), závislosti používané pomocí DI a ideálně i testíky. :nerd: Narozdíl od bakalářského předmětu budeme při hodnocení dbát na strukturu a vzhled kódu, ať tam není :vommit:.
+Semestrální práce bude váš jediný velký domácí úkol, na základě kterého získáte známku. Ideálně středně velká aplikace s 6 - 10 obrazovkami. Ze cvik máte k dispozici spoustu věcí a technologií, které můžete použít. Opět ideálně, když ukážete co nejvíce z nich. Vyžadovaná bude nějaká architektura (nechceme vidět všechnu logiku ve `View`), závislosti používané pomocí DI a ideálně i testíky. 🤓 Narozdíl od bakalářského předmětu budeme při hodnocení dbát na strukturu a vzhled kódu, ať tam není 🤮.
 
 Konkrétní požadavky:
 
@@ -67,9 +67,9 @@ Konkrétní požadavky:
 * použít cokoliv víc advanced
 	* pohrát si s animacemi
 	* udělat today widget, appku na hodinky, klávesnici
-	* klidně i něco, co se na cvikách nebude dělat (nějaké pokročilejší video, rozpoznávání obličejů, zvuky…)
+	* klidně i něco, co se na cvikách nebude dělat (nějaké pokročilejší video, rozpoznávání obličejů, zvuky, ...)
 
-Už nejsme na bakaláři, takže hlavně dbejte na kód, ať nemáte volání API singletonu z `viewDidLoad`. :-1: Ideálně má vzniknout téměř **appstore ready appka** - hezký design, UX, ikonka, launchscreen etc.
+Už nejsme na bakaláři, takže hlavně dbejte na kód, ať nemáte volání API singletonu z `viewDidLoad`. 👎 Ideálně má vzniknout téměř **appstore ready appka** - hezký design, UX, ikonka, launchscreen etc.
 
 Příklady zajímavých API:
 
