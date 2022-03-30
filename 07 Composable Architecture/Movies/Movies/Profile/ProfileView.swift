@@ -46,7 +46,7 @@ struct ProfileView: View {
                     .font(.headline)
                     .padding(.top, 32)
 
-                ForEach(viewStore.watchlist) { movie in
+                ForEach(viewStore.watchlist ?? []) { movie in
                     NavigationLink(
                         isActive: viewStore.binding(
                             get: \.isMovieDetailShown,

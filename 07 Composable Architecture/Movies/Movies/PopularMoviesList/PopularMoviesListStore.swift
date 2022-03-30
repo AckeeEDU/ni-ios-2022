@@ -19,19 +19,49 @@ extension PopularMoviesListEnvironment {
     }
 }
 
+@dynamicMemberLookup
 struct PopularMoviesListState: Equatable {
+    var userSettings: UserSettings?
+    var watchlist: [PopularMovie]?
+    var screenState: PopularMoviesListScreenState
+
+    subscript<Value>(dynamicMember keyPath: WritableKeyPath<PopularMoviesListScreenState, Value>) -> Value {
+        get { screenState[keyPath: keyPath] }
+        set { screenState[keyPath: keyPath] = newValue }
+    }
+
+    subscript<Value>(dynamicMember keyPath: KeyPath<PopularMoviesListScreenState, Value>) -> Value {
+        screenState[keyPath: keyPath]
+    }
+}
+
+extension PopularMoviesListState {
+    var movieDetail: MovieDetailState? {
+        get {
+            guard let state = screenState.movieDetailScreenState else { return nil }
+            return .init(userSettings: userSettings, watchlist: watchlist, screenState: state)
+        }
+        set {
+            userSettings = newValue?.userSettings
+            watchlist = newValue?.watchlist
+            screenState.movieDetailScreenState = newValue?.screenState
+        }
+    }
+}
+
+struct PopularMoviesListScreenState: Equatable {
     var movies: [PopularMovie] = []
     var isLoading = false
 
-    var movieDetail: MovieDetailState?
+    var movieDetailScreenState: MovieDetailScreenState?
 
     fileprivate var page = 1
     fileprivate var hasMoreContent = true
 }
 
-extension PopularMoviesListState {
+extension PopularMoviesListScreenState {
     var isDetailShown: Bool {
-        movieDetail != nil
+        movieDetailScreenState != nil
     }
 }
 
@@ -93,10 +123,10 @@ private let _popularMoviesListReducer = Reducer<PopularMoviesListState, PopularM
         }
 
     case let .showDetail(movie):
-        state.movieDetail = MovieDetailState(movieID: movie.movie.ids.slug)
+        state.movieDetailScreenState = MovieDetailScreenState(movieID: movie.movie.ids.slug)
 
     case .hideDetail:
-        state.movieDetail = nil
+        state.movieDetailScreenState = nil
 
     case .movieDetail:
         break

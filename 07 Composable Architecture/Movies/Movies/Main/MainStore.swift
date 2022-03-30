@@ -24,8 +24,35 @@ extension MainEnvironment {
 }
 
 struct MainState: Equatable {
-    var popularMoviesList = PopularMoviesListState()
-    var profile = ProfileState()
+    var userSettings: UserSettings?
+    var watchlist: [PopularMovie]?
+
+    var popularMoviesListScreenState = PopularMoviesListScreenState()
+    var profileScreenState = ProfileScreenState()
+}
+
+extension MainState {
+    var popularMoviesList: PopularMoviesListState {
+        get {
+            .init(userSettings: userSettings, watchlist: watchlist, screenState: popularMoviesListScreenState)
+        }
+        set {
+            userSettings = newValue.userSettings
+            watchlist = newValue.watchlist
+            popularMoviesListScreenState = newValue.screenState
+        }
+    }
+
+    var profile: ProfileState {
+        get {
+            .init(userSettings: userSettings, watchlist: watchlist, screenState: profileScreenState)
+        }
+        set {
+            userSettings = newValue.userSettings
+            watchlist = newValue.watchlist
+            profileScreenState = newValue.screenState
+        }
+    }
 }
 
 enum MainAction {

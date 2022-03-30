@@ -13,9 +13,25 @@ struct MovieDetailEnvironment {
     let api: API
 }
 
+@dynamicMemberLookup
 struct MovieDetailState: Equatable {
-    let movieID: String
+    var userSettings: UserSettings?
+    var watchlist: [PopularMovie]?
 
+    var screenState: MovieDetailScreenState
+
+    subscript<Value>(dynamicMember keyPath: WritableKeyPath<MovieDetailScreenState, Value>) -> Value {
+        get { screenState[keyPath: keyPath] }
+        set { screenState[keyPath: keyPath] = newValue }
+    }
+
+    subscript<Value>(dynamicMember keyPath: KeyPath<MovieDetailScreenState, Value>) -> Value {
+        screenState[keyPath: keyPath]
+    }
+}
+
+struct MovieDetailScreenState: Equatable {
+    let movieID: String
     var movie: MovieDetail?
     var isInWatchlist = false
 }
@@ -23,17 +39,36 @@ struct MovieDetailState: Equatable {
 enum MovieDetailAction {
     case fetchData
     case toggleWatchlist
+    case updateWatchlist
 
     case movieDetailResponse(Result<MovieDetail, Error>)
+    case userSettingsResponse(Result<UserSettings, Error>)
+    case watchlistResponse(Result<[PopularMovie], Error>)
 }
 
 let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetailEnvironment> { state, action, env in
     switch action {
     case .fetchData:
-        return env.api.detail(state.movieID)
-            .receive(on: env.mainQueue)
-            .catchToEffect()
-            .map(MovieDetailAction.movieDetailResponse)
+        var effects: [Effect<MovieDetailAction, Never>] = []
+        effects.append(
+            env.api.detail(state.movieID)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(MovieDetailAction.movieDetailResponse)
+        )
+
+        if state.userSettings == nil {
+            effects.append(
+                env.api.settings()
+                    .receive(on: env.mainQueue)
+                    .catchToEffect()
+                    .map(MovieDetailAction.userSettingsResponse)
+            )
+        } else {
+            effects.append(Effect(value: .updateWatchlist))
+        }
+
+        return .merge(effects)
 
     case let .movieDetailResponse(result):
         switch result {
@@ -43,6 +78,33 @@ let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetai
         case let .success(movieDetail):
             state.movie = movieDetail
         }
+
+    case let .userSettingsResponse(result):
+        switch result {
+        case let .failure(error):
+            print("[ERROR]", error.localizedDescription)
+
+        case let .success(settings):
+            state.userSettings = settings
+
+            return env.api.watchlist(settings.user.username)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(MovieDetailAction.watchlistResponse)
+        }
+
+    case let .watchlistResponse(result):
+        switch result {
+        case let .failure(error):
+            print("[ERROR]", error.localizedDescription)
+
+        case let .success(watchlist):
+            state.watchlist = watchlist
+            return Effect(value: .updateWatchlist)
+        }
+
+    case .updateWatchlist:
+        state.isInWatchlist = state.watchlist?.contains { $0.movie.ids.slug == state.movieID } ?? false
 
     case .toggleWatchlist:
         break

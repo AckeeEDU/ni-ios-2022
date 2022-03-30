@@ -22,18 +22,44 @@ extension ProfileEnvironment {
     }
 }
 
+@dynamicMemberLookup
 struct ProfileState: Equatable {
-    var isLoading = true
     var userSettings: UserSettings?
-    var watchlist: [PopularMovie] = []
+    var watchlist: [PopularMovie]?
 
-    var movieDetail: MovieDetailState?
+    var screenState: ProfileScreenState
+
+    subscript<Value>(dynamicMember keyPath: WritableKeyPath<ProfileScreenState, Value>) -> Value {
+        get { screenState[keyPath: keyPath] }
+        set { screenState[keyPath: keyPath] = newValue }
+    }
+
+    subscript<Value>(dynamicMember keyPath: KeyPath<ProfileScreenState, Value>) -> Value {
+        screenState[keyPath: keyPath]
+    }
 }
 
 extension ProfileState {
     var isMovieDetailShown: Bool {
         movieDetail != nil
     }
+
+    var movieDetail: MovieDetailState? {
+        get {
+            guard let state = screenState.movieDetailScreenState else { return nil }
+            return .init(userSettings: userSettings, watchlist: watchlist, screenState: state)
+        }
+        set {
+            userSettings = newValue?.userSettings
+            watchlist = newValue?.watchlist
+            screenState.movieDetailScreenState = newValue?.screenState
+        }
+    }
+}
+
+struct ProfileScreenState: Equatable {
+    var isLoading = true
+    var movieDetailScreenState: MovieDetailScreenState?
 }
 
 enum ProfileAction {
@@ -55,7 +81,6 @@ private let _profileReducer = Reducer<ProfileState, ProfileAction, ProfileEnviro
             .map(ProfileAction.userSettingsResponse)
 
     case let .userSettingsResponse(result):
-
         switch result {
         case let .failure(error):
             state.isLoading = false
@@ -81,10 +106,10 @@ private let _profileReducer = Reducer<ProfileState, ProfileAction, ProfileEnviro
         }
 
     case let .showMovieDetail(movie):
-        state.movieDetail = MovieDetailState(movieID: movie.movie.ids.slug)
+        state.movieDetailScreenState = MovieDetailScreenState(movieID: movie.movie.ids.slug)
 
     case .hideMovieDetail:
-        state.movieDetail = nil
+        state.movieDetailScreenState = nil
 
     case .movieDetail:
         break
