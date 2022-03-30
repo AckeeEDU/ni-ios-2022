@@ -6,19 +6,20 @@
 //
 
 import Foundation
+import Combine
 
 protocol HasAPI {
     var api: API { get }
 }
 
 struct API {
-    let token: (String) async throws -> OAuthResponse
-    let trending: (Int) async throws -> [PopularMovie]
-    let detail: (String) async throws -> MovieDetail
-    let settings: () async throws -> UserSettings
-    let watchlist: (String) async throws -> [PopularMovie]
-    let addToWatchlist: (Movie) async throws -> Void
-    let removeFromWatchlist: (Movie) async throws -> Void
+    let token: (String) -> AnyPublisher<OAuthResponse, Error>
+    let trending: (Int) -> AnyPublisher<[PopularMovie], Error>
+    let detail: (String) -> AnyPublisher<MovieDetail, Error>
+    let settings: () -> AnyPublisher<UserSettings, Error>
+    let watchlist: (String) -> AnyPublisher<[PopularMovie], Error>
+    let addToWatchlist: (Movie) -> AnyPublisher<Void, Error>
+    let removeFromWatchlist: (Movie) -> AnyPublisher<Void, Error>
 }
 
 extension API {
@@ -38,25 +39,26 @@ extension API {
                 "grant_type": "authorization_code",
                 "redirect_uri": "movies://login",
             ]
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            request.httpBody = try! JSONSerialization.data(withJSONObject: body)
 
-            let (data, _) = try await URLSession.shared.data(for: request)
-
-            return try JSONDecoder.app.decode(OAuthResponse.self, from: data)
+            return URLSession.shared.dataTaskPublisher(for: request)
+                .map(\.data)
+                .decode(type: OAuthResponse.self, decoder: JSONDecoder.app)
+                .eraseToAnyPublisher()
         },
         trending: { page in
             let query = page > 1 ? [URLQueryItem(name: "page", value: String(page))] : []
 
-            return try await makeAuthenticatedRequest(path: "movies/trending", query: query)
+            return makeAuthenticatedRequest(path: "movies/trending", query: query)
         },
         detail: { id in
-            try await makeAuthenticatedRequest(path: "movies/\(id)", query: [URLQueryItem(name: "extended", value: "full")])
+            makeAuthenticatedRequest(path: "movies/\(id)", query: [URLQueryItem(name: "extended", value: "full")])
         },
         settings: {
-            try await makeAuthenticatedRequest(path: "users/settings")
+            makeAuthenticatedRequest(path: "users/settings")
         },
         watchlist: { userID in
-            try await makeAuthenticatedRequest(path: "users/\(userID)/watchlist/movies/added")
+            makeAuthenticatedRequest(path: "users/\(userID)/watchlist/movies/added")
         },
         addToWatchlist: { movie in
             let body: [String: [Movie]] = [
@@ -64,9 +66,11 @@ extension API {
             ]
             var request = URLRequest(url: URL(string: "https://api.trakt.tv/sync/watchlist")!)
             request.httpMethod = "POST"
-            request.httpBody = try JSONEncoder().encode(body)
+            request.httpBody = try! JSONEncoder().encode(body)
 
-            _ = try await makeRequest(request)
+            return makeRequest(request)
+                .map { _ in }
+                .eraseToAnyPublisher()
         },
         removeFromWatchlist: { movie in
             let body: [String: [Movie]] = [
@@ -74,9 +78,11 @@ extension API {
             ]
             var request = URLRequest(url: URL(string: "https://api.trakt.tv/sync/watchlist/remove")!)
             request.httpMethod = "POST"
-            request.httpBody = try JSONEncoder().encode(body)
+            request.httpBody = try! JSONEncoder().encode(body)
 
-            _ = try await makeRequest(request)
+            return makeRequest(request)
+                .map { _ in }
+                .eraseToAnyPublisher()
         }
     )
 }
@@ -94,7 +100,7 @@ struct InvalidURL: Error { }
 private func makeAuthenticatedRequest<Response: Decodable>(
     path: String,
     query: [URLQueryItem] = []
-) async throws -> Response {
+) -> AnyPublisher<Response, Error> {
     var components = URLComponents(
         url: URL(string: "https://api.trakt.tv/\(path)")!,
         resolvingAgainstBaseURL: false
@@ -103,14 +109,33 @@ private func makeAuthenticatedRequest<Response: Decodable>(
         components?.queryItems = query
     }
 
-    guard let url = components?.url else { throw InvalidURL() }
+    guard let url = components?.url else { fatalError() }
 
-    let data = try await makeRequest(URLRequest(url: url))
-
-    return try JSONDecoder.app.decode(Response.self, from: data)
+    return makeRequest(URLRequest(url: url))
+        .decode(type: Response.self, decoder: JSONDecoder.app)
+        .eraseToAnyPublisher()
 }
 
-private func makeRequest(_ request: URLRequest) async throws -> Data {
+private func makeRequest(_ request: URLRequest) -> AnyPublisher<Data, Error> {
+    dataRequest(for: request)
+        .tryCatch { error -> AnyPublisher<(data: Data, response: URLResponse), Error> in
+            if error.code == .init(rawValue: 403) {
+                return updateToken()
+                    .flatMap {
+                        dataRequest(for: request)
+                            .mapError { $0 as Error }
+                    }
+                    .eraseToAnyPublisher()
+            } else {
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+        }
+        .map(\.data)
+        .eraseToAnyPublisher()
+}
+
+private func dataRequest(for request: URLRequest) -> URLSession.DataTaskPublisher {
     var request = request
 
     let headers = request.allHTTPHeaderFields ?? [:]
@@ -122,33 +147,10 @@ private func makeRequest(_ request: URLRequest) async throws -> Data {
         "trakt-api-key": "c97c817dedfab758e2d31af2323566f9872b8acfa438120466d09e4c7cb0c3ac"
     ], uniquingKeysWith: { $1 })
 
-    var (data, response) = try await dataRequest(for: request)
-
-    if (response as? HTTPURLResponse)?.statusCode == 403 {
-        await updateToken()
-
-        let accessToken = UserDefaults.standard.string(forKey: "accessToken") ?? ""
-        request.allHTTPHeaderFields = headers.merging(["Authorization": "Bearer \(accessToken)"], uniquingKeysWith: { $1 })
-
-        (data, response) = try! await dataRequest(for: request)
-    }
-
-    return data
+    return URLSession.shared.dataTaskPublisher(for: request)
 }
 
-private func dataRequest(for request: URLRequest) async throws -> (Data, URLResponse) {
-    print("⬆️", request.url!.absoluteString)
-    if let body = request.httpBody {
-        print("BODY:", String(data: body, encoding: .utf8)!)
-    }
-    let (data, response) = try await URLSession.shared.data(for: request)
-    print("⬇️", request.url!.absoluteString, "[", (response as? HTTPURLResponse)?.statusCode ?? 0, "]")
-    print(String(data: data, encoding: .utf8)!)
-
-    return (data, response)
-}
-
-private func updateToken() async {
+private func updateToken() -> AnyPublisher<Void, Error> {
     let url = URL(string: "https://api.trakt.tv/oauth/token")!
 
     var request = URLRequest(url: url)
@@ -162,16 +164,22 @@ private func updateToken() async {
         "grant_type": "refresh_token"
     ]
 
-    print(String(data: try! JSONSerialization.data(withJSONObject: body), encoding: .utf8)!)
+//    print(String(data: try! JSONSerialization.data(withJSONObject: body), encoding: .utf8)!)
 
     request.httpBody = try! JSONSerialization.data(withJSONObject: body)
 
-    let (data, _) = try! await URLSession.shared.data(for: request)
-
     let decoder = JSONDecoder()
     decoder.keyDecodingStrategy = .convertFromSnakeCase
-    let response = try! decoder.decode(OAuthResponse.self, from: data)
 
-    UserDefaults.standard.set(response.accessToken, forKey: "accessToken")
-    UserDefaults.standard.set(response.refreshToken, forKey: "refreshToken")
+    return URLSession.shared.dataTaskPublisher(for: request)
+        .map(\.data)
+        .decode(type: OAuthResponse.self, decoder: decoder)
+        .handleEvents(
+            receiveOutput: { response in
+                UserDefaults.standard.set(response.accessToken, forKey: "accessToken")
+                UserDefaults.standard.set(response.refreshToken, forKey: "refreshToken")
+            }
+        )
+        .map { _ in }
+        .eraseToAnyPublisher()
 }
