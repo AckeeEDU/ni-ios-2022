@@ -27,9 +27,10 @@ final class UserSettingsRepository: UserSettingsRepositoryType {
     }
 
     func fetch() async throws -> UserSettings {
-        let settings = try await dependencies.api.settings()
-        username = settings.user.username
-        return settings
+//        let settings = try await dependencies.api.settings()
+//        username = settings.user.username
+//        return settings
+        return UserSettings(user: UserSettings.User.init(username: "", name: ""))
     }
 
     func username() async throws -> String? {

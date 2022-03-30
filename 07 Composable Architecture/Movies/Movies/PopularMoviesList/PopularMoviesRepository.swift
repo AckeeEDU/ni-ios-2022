@@ -19,6 +19,7 @@ final class PopularMoviesRepository: PopularMoviesRepositoryType {
     }
 
     func fetchPopularMovies(page: Int) async throws -> [PopularMovie] {
-        try await api.trending(page)
+//        try await api.trending(page)
+        return []
     }
 }

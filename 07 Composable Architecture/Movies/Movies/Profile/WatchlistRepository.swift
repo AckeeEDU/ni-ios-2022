@@ -31,18 +31,19 @@ final class WatchlistRepository: WatchlistRepositoryType {
     }
 
     func fetch() async throws -> [PopularMovie] {
-        guard let username = try await dependencies.userSettingsRepository.username() else { return [] }
-        let watchlist = try await dependencies.api.watchlist(username)
-        self.watchlist = watchlist
-        return watchlist
+//        guard let username = try await dependencies.userSettingsRepository.username() else { return [] }
+//        let watchlist = try await dependencies.api.watchlist(username)
+//        self.watchlist = watchlist
+//        return watchlist
+        return []
     }
 
     func removeFromWatchlist(_ movie: Movie) async throws {
-        try await dependencies.api.removeFromWatchlist(movie)
+//        try await dependencies.api.removeFromWatchlist(movie)
     }
 
     func addToWatchlist(_ movie: Movie) async throws {
-        try await dependencies.api.addToWatchlist(movie)
+//        try await dependencies.api.addToWatchlist(movie)
     }
 
     func watchlist() async throws -> [PopularMovie] {

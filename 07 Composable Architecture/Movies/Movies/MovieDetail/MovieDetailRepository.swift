@@ -19,6 +19,7 @@ final class MovieDetailRepository: MovieDetailRepositoryType {
     }
 
     func fetchDetail(id: String) async throws -> MovieDetail {
-        try await api.detail(id)
+//        try await api.detail(id)
+        return MovieDetail(title: "", tagline: "", overview: "", released: "", runtime: 0, ids: .init(trakt: 0, slug: "", imdb: "", tmdb: 0), year: 0)
     }
 }

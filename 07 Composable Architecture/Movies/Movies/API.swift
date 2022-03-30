@@ -164,8 +164,6 @@ private func updateToken() -> AnyPublisher<Void, Error> {
         "grant_type": "refresh_token"
     ]
 
-//    print(String(data: try! JSONSerialization.data(withJSONObject: body), encoding: .utf8)!)
-
     request.httpBody = try! JSONSerialization.data(withJSONObject: body)
 
     let decoder = JSONDecoder()

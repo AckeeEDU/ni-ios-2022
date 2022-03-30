@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct MoviesApp: App {
+    private let rootStore = RootState()
     var body: some Scene {
         WindowGroup {
-            RootView()
+            RootView(
+                store: Store(
+                    initialState: rootStore,
+                    reducer: rootReducer,
+                    environment: RootEnvironment()
+                )
+            )
         }
     }
 }
