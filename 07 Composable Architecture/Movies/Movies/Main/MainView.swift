@@ -30,14 +30,7 @@ struct MainView: View {
 
             NavigationView {
                 ProfileView(
-                    viewModel: ProfileViewModel(
-                        fetchUserSettingsUseCase: FetchUserSettingsUseCase(
-                            userSettingsRepository: dependencies.userSettingsRepository
-                        ),
-                        fetchWatchlistUseCase: FetchWatchlistUseCase(
-                            watchlistRepository: dependencies.watchlistRepository
-                        )
-                    )
+                    store: store.scope(state: \.profile, action: MainAction.profile)
                 )
             }
             .tabItem {

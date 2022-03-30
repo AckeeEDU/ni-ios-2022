@@ -6,36 +6,20 @@
 //
 
 import SwiftUI
-
-final class ProfileViewModel: ObservableObject {
-    @Published var isLoading = true
-    @Published var userSettings: UserSettings?
-    @Published var watchlist: [PopularMovie] = []
-
-    private let fetchUserSettingsUseCase: FetchUserSettingsUseCaseType
-    private let fetchWatchlistUseCase: FetchWatchlistUseCaseType
-
-    init(
-        fetchUserSettingsUseCase: FetchUserSettingsUseCaseType,
-        fetchWatchlistUseCase: FetchWatchlistUseCaseType
-    ) {
-        self.fetchUserSettingsUseCase = fetchUserSettingsUseCase
-        self.fetchWatchlistUseCase = fetchWatchlistUseCase
-    }
-
-    @MainActor
-    func fetchData() async {
-        userSettings = try! await fetchUserSettingsUseCase()
-        watchlist = try! await fetchWatchlistUseCase()
-    }
-}
+import ComposableArchitecture
 
 struct ProfileView: View {
-    @StateObject var viewModel: ProfileViewModel
+    private let store: ProfileStore
+    @ObservedObject private var viewStore: ProfileViewStore
+
+    init(store: ProfileStore) {
+        self.store = store
+        self.viewStore = ViewStore(store)
+    }
 
     var body: some View {
         Group {
-            if let userSettings = viewModel.userSettings {
+            if let userSettings = viewStore.userSettings {
                 mainView(userSettings)
             } else {
                 ProgressView()
@@ -44,9 +28,7 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .onAppear {
-            Task {
-                await viewModel.fetchData()
-            }
+            viewStore.send(.fetchData)
         }
     }
 
@@ -64,8 +46,14 @@ struct ProfileView: View {
                     .font(.headline)
                     .padding(.top, 32)
 
-                ForEach(viewModel.watchlist) { movie in
-                    NavigationLink(destination: movieDetailView(movie)) {
+                ForEach(viewStore.watchlist) { movie in
+                    NavigationLink(
+                        isActive: viewStore.binding(
+                            get: \.isMovieDetailShown,
+                            send: { $0 ? .showMovieDetail(movie) : .hideMovieDetail }
+                        ),
+                        destination: { movieDetailView(movie) }
+                    ) {
                         Text(movie.movie.title)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical)
@@ -79,23 +67,9 @@ struct ProfileView: View {
     }
 
     private func movieDetailView(_ movie: PopularMovie) -> some View {
-        EmptyView()
-//        MovieDetailView(
-//            store:
-//            viewModel: MovieDetailViewModel(
-//                movieID: movie.movie.ids.slug,
-//                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
-//                    movieDetailRepository: MovieDetailRepository(
-//                        api: .live
-//                    )
-//                ),
-//                fetchWatchlistUseCase: FetchWatchlistUseCase(
-//                    watchlistRepository: dependencies.watchlistRepository
-//                ),
-//                toggleWatchlistUseCase: ToggleWatchlistUseCase(
-//                    watchlistRepository: dependencies.watchlistRepository
-//                )
-//            )
-//        )
+        IfLetStore(
+            store.scope(state: \.movieDetail, action: ProfileAction.movieDetail),
+            then: MovieDetailView.init
+        )
     }
 }

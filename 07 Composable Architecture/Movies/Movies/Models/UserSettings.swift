@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct UserSettings: Codable {
-    struct User: Codable {
+struct UserSettings: Codable, Equatable {
+    struct User: Codable, Equatable {
         let username: String
         let name: String
     }

@@ -17,22 +17,25 @@ extension MainEnvironment {
     var popularMoviesList: PopularMoviesListEnvironment {
         .init(mainQueue: mainQueue, api: api)
     }
+
+    var profile: ProfileEnvironment {
+        .init(mainQueue: mainQueue, api: api)
+    }
 }
 
 struct MainState: Equatable {
     var popularMoviesList = PopularMoviesListState()
-}
-
-extension MainState {
+    var profile = ProfileState()
 }
 
 enum MainAction {
     case popularMoviesList(PopularMoviesListAction)
+    case profile(ProfileAction)
 }
 
 private let _mainReducer = Reducer<MainState, MainAction, MainEnvironment> { state, action, env in
     switch action {
-    case .popularMoviesList:
+    case .popularMoviesList, .profile:
         break
     }
 
@@ -47,3 +50,4 @@ let mainReducer = _mainReducer
             environment: \.popularMoviesList
         )
     )
+    .combined(with: profileReducer.pullback(state: \.profile, action: /MainAction.profile, environment: \.profile))
