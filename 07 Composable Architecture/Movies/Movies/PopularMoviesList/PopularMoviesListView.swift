@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 final class PopularMoviesListViewModel: ObservableObject {
     @Published var movies: [PopularMovie] = []
@@ -58,27 +59,33 @@ final class PopularMoviesListViewModel: ObservableObject {
 }
 
 struct PopularMoviesListView: View {
-    @StateObject var viewModel: PopularMoviesListViewModel
+    private let store: Store<PopularMoviesListState, PopularMoviesListAction>
+    @ObservedObject private var viewStore: ViewStore<PopularMoviesListState, PopularMoviesListAction>
+
+    init(store: Store<PopularMoviesListState, PopularMoviesListAction>) {
+        self.store = store
+        self.viewStore = ViewStore(store)
+    }
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading) {
-                ForEach(viewModel.movies) { movie in
+                ForEach(viewStore.movies) { movie in
                     NavigationLink(destination: movieDetailView(movie)) {
                         popularMovieItem(movie)
                     }
-                    .task {
-                        await viewModel.fetchNextMoviesIfNeeded(movie)
+                    .onAppear {
+                        viewStore.send(.fetchNextDataIfNeeded(movie))
                     }
                 }
 
-                if viewModel.isLoading {
+                if viewStore.isLoading {
                     loadingView
                 }
             }
         }
-        .task {
-            await viewModel.fetchData()
+        .onAppear {
+            viewStore.send(.fetchData)
         }
         .navigationTitle("Popular movies")
     }

@@ -9,12 +9,20 @@ import ComposableArchitecture
 import Foundation
 
 struct RootEnvironment {
+    let mainQueue: AnySchedulerOf<DispatchQueue>
+    let api: API
+}
 
+extension RootEnvironment {
+    var main: MainEnvironment {
+        .init(mainQueue: mainQueue, api: api)
+    }
 }
 
 struct RootState: Equatable {
     var isLoading = false
     var isLoggedIn: Bool
+    var main = MainState()
 
     init() {
         self.isLoggedIn = !(UserDefaults.standard.string(forKey: "accessToken") ?? "").isEmpty
@@ -35,13 +43,23 @@ extension RootState {
 
 enum RootAction {
     case login(LoginAction)
+    case main(MainAction)
 }
 
-let rootReducer = Reducer<RootState, RootAction, RootEnvironment> { state, action, env in
+private let _rootReducer = Reducer<RootState, RootAction, RootEnvironment> { state, action, env in
     switch action {
-    case .login:
+    case .login, .main:
         break
     }
 
     return .none
 }
+
+let rootReducer = _rootReducer
+    .combined(
+        with: mainReducer.pullback(
+            state: \.main,
+            action: /RootAction.main,
+            environment: \.main
+        )
+    )

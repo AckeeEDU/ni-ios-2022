@@ -19,7 +19,7 @@ struct RootView: View {
 
     var body: some View {
         if viewStore.isLoggedIn {
-            ContentView()
+            MainView(store: store.scope(state: \.main, action: RootAction.main))
         } else {
             LoginView(store: store.scope(state: \.login, action: RootAction.login))
         }

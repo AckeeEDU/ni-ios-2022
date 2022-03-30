@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct Movie: Codable {
-    struct IDs: Codable {
+struct Movie: Codable, Equatable {
+    struct IDs: Codable, Equatable {
         let trakt: Int
         let slug: String
         let imdb: String

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PopularMovie: Codable, Identifiable {
+struct PopularMovie: Codable, Identifiable, Equatable {
     let id = UUID()
     let movie: Movie
 }

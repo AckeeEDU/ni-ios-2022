@@ -17,7 +17,10 @@ struct MoviesApp: App {
                 store: Store(
                     initialState: rootStore,
                     reducer: rootReducer,
-                    environment: RootEnvironment()
+                    environment: RootEnvironment(
+                        mainQueue: DispatchQueue.main.eraseToAnyScheduler(),
+                        api: .live
+                    )
                 )
             )
         }
