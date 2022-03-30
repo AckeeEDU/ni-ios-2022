@@ -78,22 +78,24 @@ struct ProfileView: View {
         }
     }
 
-    private func movieDetailView(_ movie: PopularMovie) -> MovieDetailView {
-        MovieDetailView(
-            viewModel: MovieDetailViewModel(
-                movieID: movie.movie.ids.slug,
-                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
-                    movieDetailRepository: MovieDetailRepository(
-                        api: .live
-                    )
-                ),
-                fetchWatchlistUseCase: FetchWatchlistUseCase(
-                    watchlistRepository: dependencies.watchlistRepository
-                ),
-                toggleWatchlistUseCase: ToggleWatchlistUseCase(
-                    watchlistRepository: dependencies.watchlistRepository
-                )
-            )
-        )
+    private func movieDetailView(_ movie: PopularMovie) -> some View {
+        EmptyView()
+//        MovieDetailView(
+//            store:
+//            viewModel: MovieDetailViewModel(
+//                movieID: movie.movie.ids.slug,
+//                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
+//                    movieDetailRepository: MovieDetailRepository(
+//                        api: .live
+//                    )
+//                ),
+//                fetchWatchlistUseCase: FetchWatchlistUseCase(
+//                    watchlistRepository: dependencies.watchlistRepository
+//                ),
+//                toggleWatchlistUseCase: ToggleWatchlistUseCase(
+//                    watchlistRepository: dependencies.watchlistRepository
+//                )
+//            )
+//        )
     }
 }

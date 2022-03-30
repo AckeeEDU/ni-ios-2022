@@ -21,9 +21,14 @@ struct PopularMoviesListView: View {
         ScrollView {
             LazyVStack(alignment: .leading) {
                 ForEach(viewStore.movies) { movie in
-                    NavigationLink(destination: movieDetailView(movie)) {
-                        popularMovieItem(movie)
-                    }
+                    NavigationLink(
+                        isActive: viewStore.binding(
+                            get: \.isDetailShown,
+                            send: { $0 ? .showDetail(movie) : .hideDetail }
+                        ),
+                        destination: { movieDetailView(movie) },
+                        label: { popularMovieItem(movie) }
+                    )
                     .onAppear {
                         viewStore.send(.fetchNextDataIfNeeded(movie))
                     }
@@ -61,22 +66,10 @@ struct PopularMoviesListView: View {
             .padding()
     }
 
-    private func movieDetailView(_ movie: PopularMovie) -> MovieDetailView {
-        MovieDetailView(
-            viewModel: MovieDetailViewModel(
-                movieID: movie.movie.ids.slug,
-                fetchMovieDetailUseCase: FetchMovieDetailUseCase(
-                    movieDetailRepository: MovieDetailRepository(
-                        api: .live
-                    )
-                ),
-                fetchWatchlistUseCase: FetchWatchlistUseCase(
-                    watchlistRepository: dependencies.watchlistRepository
-                ),
-                toggleWatchlistUseCase: ToggleWatchlistUseCase(
-                    watchlistRepository: dependencies.watchlistRepository
-                )
-            )
+    private func movieDetailView(_ movie: PopularMovie) -> some View {
+        IfLetStore(
+            store.scope(state: \.movieDetail, action: PopularMoviesListAction.movieDetail),
+            then: MovieDetailView.init
         )
     }
 }

@@ -6,63 +6,68 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
-final class MovieDetailViewModel: ObservableObject {
-    @Published var movie: MovieDetail?
-    @Published var isInWatchlist = false
-
-    private let movieID: String
-    private let fetchMovieDetailUseCase: FetchMovieDetailUseCaseType
-    private let fetchWatchlistUseCase: FetchWatchlistUseCaseType
-    private let toggleWatchlistUseCase: ToggleWatchlistUseCaseType
-
-    init(
-        movieID: String,
-        fetchMovieDetailUseCase: FetchMovieDetailUseCaseType,
-        fetchWatchlistUseCase: FetchWatchlistUseCaseType,
-        toggleWatchlistUseCase: ToggleWatchlistUseCaseType
-    ) {
-        self.movieID = movieID
-        self.fetchMovieDetailUseCase = fetchMovieDetailUseCase
-        self.fetchWatchlistUseCase = fetchWatchlistUseCase
-        self.toggleWatchlistUseCase = toggleWatchlistUseCase
-    }
-
-    @MainActor
-    func fetchData() async {
-        movie = try! await fetchMovieDetailUseCase(movieID)
-        await updateWatchlistStatus()
-    }
-
-    @MainActor
-    func toggleWatchlist() async {
-        guard let movie = movie else { return }
-
-        try! await toggleWatchlistUseCase(movie)
-        await updateWatchlistStatus()
-    }
-
-    @MainActor
-    private func updateWatchlistStatus() async {
-        let watchlist = try! await fetchWatchlistUseCase()
-        isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
-    }
-}
+//final class MovieDetailViewModel: ObservableObject {
+//    @Published var movie: MovieDetail?
+//    @Published var isInWatchlist = false
+//
+//    private let movieID: String
+//    private let fetchMovieDetailUseCase: FetchMovieDetailUseCaseType
+//    private let fetchWatchlistUseCase: FetchWatchlistUseCaseType
+//    private let toggleWatchlistUseCase: ToggleWatchlistUseCaseType
+//
+//    init(
+//        movieID: String,
+//        fetchMovieDetailUseCase: FetchMovieDetailUseCaseType,
+//        fetchWatchlistUseCase: FetchWatchlistUseCaseType,
+//        toggleWatchlistUseCase: ToggleWatchlistUseCaseType
+//    ) {
+//        self.movieID = movieID
+//        self.fetchMovieDetailUseCase = fetchMovieDetailUseCase
+//        self.fetchWatchlistUseCase = fetchWatchlistUseCase
+//        self.toggleWatchlistUseCase = toggleWatchlistUseCase
+//    }
+//
+//    @MainActor
+//    func fetchData() async {
+//        movie = try! await fetchMovieDetailUseCase(movieID)
+//        await updateWatchlistStatus()
+//    }
+//
+//    @MainActor
+//    func toggleWatchlist() async {
+//        guard let movie = movie else { return }
+//
+//        try! await toggleWatchlistUseCase(movie)
+//        await updateWatchlistStatus()
+//    }
+//
+//    @MainActor
+//    private func updateWatchlistStatus() async {
+//        let watchlist = try! await fetchWatchlistUseCase()
+//        isInWatchlist = watchlist.contains { $0.movie.ids.trakt == movie?.ids.trakt }
+//    }
+//}
 
 struct MovieDetailView: View {
-    @StateObject var viewModel: MovieDetailViewModel
+    private let store: Store<MovieDetailState, MovieDetailAction>
+    @ObservedObject private var viewStore: ViewStore<MovieDetailState, MovieDetailAction>
+
+    init(store: Store<MovieDetailState, MovieDetailAction>) {
+        self.store = store
+        self.viewStore = ViewStore(store)
+    }
 
     var body: some View {
         Group {
-            if let movie = viewModel.movie {
+            if let movie = viewStore.movie {
                 contentView(movie)
             } else {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .onAppear {
-                        Task {
-                            await viewModel.fetchData()
-                        }
+                        viewStore.send(.fetchData)
                     }
             }
         }
@@ -71,11 +76,9 @@ struct MovieDetailView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    Task {
-                        await viewModel.toggleWatchlist()
-                    }
+                    viewStore.send(.toggleWatchlist)
                 } label: {
-                    if viewModel.isInWatchlist {
+                    if viewStore.isInWatchlist {
                         Image(systemName: "star.fill")
                     } else {
                         Image(systemName: "star")
