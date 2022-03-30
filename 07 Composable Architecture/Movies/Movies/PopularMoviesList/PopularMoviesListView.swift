@@ -8,56 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-final class PopularMoviesListViewModel: ObservableObject {
-    @Published var movies: [PopularMovie] = []
-    @Published var isLoading = false
-
-    private var page = 1
-    private var hasMoreContent = true
-    private let fetchPopularMoviesUseCase: FetchPopularMoviesUseCaseType
-
-    init(
-        fetchPopularMoviesUseCase: FetchPopularMoviesUseCaseType
-    ) {
-        self.fetchPopularMoviesUseCase = fetchPopularMoviesUseCase
-    }
-
-    func fetchData() async {
-        guard movies.isEmpty else { return }
-        await fetchMovies(clean: true)
-    }
-
-    @MainActor
-    func fetchNextMoviesIfNeeded(_ item: PopularMovie) async {
-        guard movies.last?.id == item.id else { return }
-
-        isLoading = true
-        await fetchMovies()
-        isLoading = false
-    }
-
-    @MainActor
-    private func fetchMovies(clean: Bool = false) async {
-        guard clean || hasMoreContent else { return }
-
-        let movies = try! await fetchPopularMoviesUseCase(page)
-
-        guard !movies.isEmpty else {
-            hasMoreContent = false
-            return
-        }
-
-        if clean {
-            self.movies = movies
-            page = 1
-        } else {
-            self.movies += movies
-        }
-
-        page += 1
-    }
-}
-
 struct PopularMoviesListView: View {
     private let store: Store<PopularMoviesListState, PopularMoviesListAction>
     @ObservedObject private var viewStore: ViewStore<PopularMoviesListState, PopularMoviesListAction>

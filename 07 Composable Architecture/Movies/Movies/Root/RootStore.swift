@@ -17,6 +17,10 @@ extension RootEnvironment {
     var main: MainEnvironment {
         .init(mainQueue: mainQueue, api: api)
     }
+
+    var login: LoginEnvironment {
+        .init(mainQueue: mainQueue, api: api)
+    }
 }
 
 struct RootState: Equatable {
@@ -61,5 +65,12 @@ let rootReducer = _rootReducer
             state: \.main,
             action: /RootAction.main,
             environment: \.main
+        )
+    )
+    .combined(
+        with: loginReducer.pullback(
+            state: \.login,
+            action: /RootAction.login,
+            environment: \.login
         )
     )
