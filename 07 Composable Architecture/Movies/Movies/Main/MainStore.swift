@@ -77,4 +77,10 @@ let mainReducer = _mainReducer
             environment: \.popularMoviesList
         )
     )
-    .combined(with: profileReducer.pullback(state: \.profile, action: /MainAction.profile, environment: \.profile))
+    .combined(
+        with: profileReducer.pullback(
+            state: \.profile,
+            action: /MainAction.profile,
+            environment: \.profile
+        )
+    )

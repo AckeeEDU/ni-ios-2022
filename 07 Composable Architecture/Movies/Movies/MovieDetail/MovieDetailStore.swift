@@ -44,6 +44,8 @@ enum MovieDetailAction {
     case movieDetailResponse(Result<MovieDetail, Error>)
     case userSettingsResponse(Result<UserSettings, Error>)
     case watchlistResponse(Result<[PopularMovie], Error>)
+    case removeFromWatchlistResponse(Result<Void, Error>)
+    case addToWatchlistResponse(Result<Void, Error>)
 }
 
 let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetailEnvironment> { state, action, env in
@@ -107,7 +109,32 @@ let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetai
         state.isInWatchlist = state.watchlist?.contains { $0.movie.ids.slug == state.movieID } ?? false
 
     case .toggleWatchlist:
-        break
+        guard let movie = state.movie?.listObject else { break }
+
+        if state.isInWatchlist {
+            return env.api.removeFromWatchlist(movie)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(MovieDetailAction.removeFromWatchlistResponse)
+        } else {
+            return env.api.addToWatchlist(movie)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(MovieDetailAction.addToWatchlistResponse)
+        }
+
+    case let .addToWatchlistResponse(result), let .removeFromWatchlistResponse(result):
+        switch result {
+        case let .failure(error):
+            print("[ERROR]", error.localizedDescription)
+
+        case let .success(watchlist):
+            guard let username = state.userSettings?.user.username else { break }
+            return env.api.watchlist(username)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(MovieDetailAction.watchlistResponse)
+        }
     }
 
     return .none

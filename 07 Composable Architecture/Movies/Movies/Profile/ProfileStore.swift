@@ -40,10 +40,6 @@ struct ProfileState: Equatable {
 }
 
 extension ProfileState {
-    var isMovieDetailShown: Bool {
-        movieDetail != nil
-    }
-
     var movieDetail: MovieDetailState? {
         get {
             guard let state = screenState.movieDetailScreenState else { return nil }
@@ -62,6 +58,12 @@ struct ProfileScreenState: Equatable {
     var movieDetailScreenState: MovieDetailScreenState?
 }
 
+extension ProfileScreenState {
+    var isMovieDetailShown: Bool {
+        movieDetailScreenState != nil
+    }
+}
+
 enum ProfileAction {
     case fetchData
     case userSettingsResponse(Result<UserSettings, Error>)
@@ -75,6 +77,7 @@ enum ProfileAction {
 private let _profileReducer = Reducer<ProfileState, ProfileAction, ProfileEnvironment> { state, action, env in
     switch action {
     case .fetchData:
+        guard state.userSettings == nil else { break }
         return env.api.settings()
             .receive(on: env.mainQueue)
             .catchToEffect()
@@ -119,7 +122,8 @@ private let _profileReducer = Reducer<ProfileState, ProfileAction, ProfileEnviro
 }
 
 let profileReducer = _profileReducer
-    .combined(with: movieDetailReducer
-        .optional()
-        .pullback(state: \.movieDetail, action: /ProfileAction.movieDetail, environment: \.movieDetail)
+    .combined(
+        with: movieDetailReducer
+            .optional()
+            .pullback(state: \.movieDetail, action: /ProfileAction.movieDetail, environment: \.movieDetail)
     )
