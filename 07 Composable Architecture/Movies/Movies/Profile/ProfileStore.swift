@@ -39,6 +39,7 @@ extension ProfileState {
 enum ProfileAction {
     case fetchData
     case userSettingsResponse(Result<UserSettings, Error>)
+    case watchlistResponse(Result<[PopularMovie], Error>)
     case showMovieDetail(PopularMovie)
     case hideMovieDetail
 
@@ -54,14 +55,29 @@ private let _profileReducer = Reducer<ProfileState, ProfileAction, ProfileEnviro
             .map(ProfileAction.userSettingsResponse)
 
     case let .userSettingsResponse(result):
-        state.isLoading = false
 
         switch result {
         case let .failure(error):
+            state.isLoading = false
             print("[ERROR]", error.localizedDescription)
 
         case let .success(settings):
             state.userSettings = settings
+
+            return env.api.watchlist(settings.user.username)
+                .receive(on: env.mainQueue)
+                .catchToEffect()
+                .map(ProfileAction.watchlistResponse)
+        }
+
+    case let .watchlistResponse(result):
+        state.isLoading = false
+        switch result {
+        case let .failure(error):
+            print("[ERROR]", error.localizedDescription)
+
+        case let .success(movies):
+            state.watchlist = movies
         }
 
     case let .showMovieDetail(movie):
