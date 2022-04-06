@@ -67,9 +67,9 @@ extension PopularMoviesListScreenState {
 
 enum PopularMoviesListAction {
     case fetchData
-    case fetchDataResponse(Result<[PopularMovie], Error>)
+    case fetchDataResponse(Result<[PopularMovie], RequestError>)
     case fetchNextDataIfNeeded(PopularMovie)
-    case fetchNextDataResponse(Result<[PopularMovie], Error>)
+    case fetchNextDataResponse(Result<[PopularMovie], RequestError>)
     case showDetail(PopularMovie)
     case hideDetail
 

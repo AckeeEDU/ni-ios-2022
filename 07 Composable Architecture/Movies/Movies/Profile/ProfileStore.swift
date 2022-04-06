@@ -66,8 +66,8 @@ extension ProfileScreenState {
 
 enum ProfileAction {
     case fetchData
-    case userSettingsResponse(Result<UserSettings, Error>)
-    case watchlistResponse(Result<[PopularMovie], Error>)
+    case userSettingsResponse(Result<UserSettings, RequestError>)
+    case watchlistResponse(Result<[PopularMovie], RequestError>)
     case showMovieDetail(PopularMovie)
     case hideMovieDetail
 

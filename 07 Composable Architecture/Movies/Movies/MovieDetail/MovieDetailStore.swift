@@ -36,16 +36,16 @@ struct MovieDetailScreenState: Equatable {
     var isInWatchlist = false
 }
 
-enum MovieDetailAction {
+enum MovieDetailAction: Equatable {
     case fetchData
     case toggleWatchlist
     case updateWatchlist
 
-    case movieDetailResponse(Result<MovieDetail, Error>)
-    case userSettingsResponse(Result<UserSettings, Error>)
-    case watchlistResponse(Result<[PopularMovie], Error>)
-    case removeFromWatchlistResponse(Result<Void, Error>)
-    case addToWatchlistResponse(Result<Void, Error>)
+    case movieDetailResponse(Result<MovieDetail, RequestError>)
+    case userSettingsResponse(Result<UserSettings, RequestError>)
+    case watchlistResponse(Result<[PopularMovie], RequestError>)
+    case removeFromWatchlistResponse(Result<Int, RequestError>)
+    case addToWatchlistResponse(Result<Int, RequestError>)
 }
 
 let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetailEnvironment> { state, action, env in
@@ -113,11 +113,13 @@ let movieDetailReducer = Reducer<MovieDetailState, MovieDetailAction, MovieDetai
 
         if state.isInWatchlist {
             return env.api.removeFromWatchlist(movie)
+                .map { _ in 0 }
                 .receive(on: env.mainQueue)
                 .catchToEffect()
                 .map(MovieDetailAction.removeFromWatchlistResponse)
         } else {
             return env.api.addToWatchlist(movie)
+                .map { _ in 0 }
                 .receive(on: env.mainQueue)
                 .catchToEffect()
                 .map(MovieDetailAction.addToWatchlistResponse)

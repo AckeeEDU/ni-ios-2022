@@ -8,18 +8,26 @@
 import Foundation
 import Combine
 
+struct RequestError: Error, Equatable {
+    let error: Error
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.localizedDescription == rhs.localizedDescription
+    }
+}
+
 protocol HasAPI {
     var api: API { get }
 }
 
 struct API {
-    let token: (String) -> AnyPublisher<OAuthResponse, Error>
-    let trending: (Int) -> AnyPublisher<[PopularMovie], Error>
-    let detail: (String) -> AnyPublisher<MovieDetail, Error>
-    let settings: () -> AnyPublisher<UserSettings, Error>
-    let watchlist: (String) -> AnyPublisher<[PopularMovie], Error>
-    let addToWatchlist: (Movie) -> AnyPublisher<Void, Error>
-    let removeFromWatchlist: (Movie) -> AnyPublisher<Void, Error>
+    let token: (String) -> AnyPublisher<OAuthResponse, RequestError>
+    let trending: (Int) -> AnyPublisher<[PopularMovie], RequestError>
+    let detail: (String) -> AnyPublisher<MovieDetail, RequestError>
+    let settings: () -> AnyPublisher<UserSettings, RequestError>
+    let watchlist: (String) -> AnyPublisher<[PopularMovie], RequestError>
+    let addToWatchlist: (Movie) -> AnyPublisher<Void, RequestError>
+    let removeFromWatchlist: (Movie) -> AnyPublisher<Void, RequestError>
 }
 
 extension API {
@@ -44,6 +52,7 @@ extension API {
             return URLSession.shared.dataTaskPublisher(for: request)
                 .map(\.data)
                 .decode(type: OAuthResponse.self, decoder: JSONDecoder.app)
+                .mapError(RequestError.init)
                 .eraseToAnyPublisher()
         },
         trending: { page in
@@ -100,7 +109,7 @@ struct InvalidURL: Error { }
 private func makeAuthenticatedRequest<Response: Decodable>(
     path: String,
     query: [URLQueryItem] = []
-) -> AnyPublisher<Response, Error> {
+) -> AnyPublisher<Response, RequestError> {
     var components = URLComponents(
         url: URL(string: "https://api.trakt.tv/\(path)")!,
         resolvingAgainstBaseURL: false
@@ -113,10 +122,11 @@ private func makeAuthenticatedRequest<Response: Decodable>(
 
     return makeRequest(URLRequest(url: url))
         .decode(type: Response.self, decoder: JSONDecoder.app)
+        .mapError(RequestError.init)
         .eraseToAnyPublisher()
 }
 
-private func makeRequest(_ request: URLRequest) -> AnyPublisher<Data, Error> {
+private func makeRequest(_ request: URLRequest) -> AnyPublisher<Data, RequestError> {
     dataRequest(for: request)
         .tryCatch { error -> AnyPublisher<(data: Data, response: URLResponse), Error> in
             if error.code == .init(rawValue: 403) {
@@ -132,6 +142,7 @@ private func makeRequest(_ request: URLRequest) -> AnyPublisher<Data, Error> {
             }
         }
         .map(\.data)
+        .mapError(RequestError.init)
         .eraseToAnyPublisher()
 }
 

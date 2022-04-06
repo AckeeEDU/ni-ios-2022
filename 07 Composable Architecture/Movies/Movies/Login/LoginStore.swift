@@ -32,7 +32,7 @@ extension LoginState {
 
 enum LoginAction {
     case onOpenURL(URL)
-    case tokenResponse(Result<OAuthResponse, Error>)
+    case tokenResponse(Result<OAuthResponse, RequestError>)
 }
 
 let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, action, env in
