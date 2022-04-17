@@ -42,9 +42,10 @@
 
 ### 08 DI + Testy
 
-### 09 Persistence
-- CoreData, FS, UserDefaults, Keychain
-- Napojení na SwiftUI (CD, AppStorage)
+### 09 Widget
+- Widget extension
+- Automatic code signing
+- Static widget configuration
 
 ### 10 Pušky + extensions
 - Code signing?
