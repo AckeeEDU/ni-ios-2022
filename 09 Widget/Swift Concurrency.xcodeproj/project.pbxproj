@@ -115,6 +115,7 @@
 		699085E82807149F0005CAA6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		699085FB280717810005CAA6 /* Shared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Shared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		699085FD280717810005CAA6 /* Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Shared.h; sourceTree = "<group>"; };
+		69DB7F96280C9E9D002EF213 /* Swift-Concurrency-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Swift-Concurrency-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +150,7 @@
 		695E715927E1E7FE00277886 = {
 			isa = PBXGroup;
 			children = (
+				69DB7F96280C9E9D002EF213 /* Swift-Concurrency-Info.plist */,
 				6924D4D028072A94005B0047 /* WidgetExtension.entitlements */,
 				6924D4CF28072A04005B0047 /* Swift Concurrency.entitlements */,
 				6989A32B27E2384E00D43A09 /* Swift Concurrency.playground */,
@@ -541,6 +543,7 @@
 				DEVELOPMENT_TEAM = 4VAZE7CCFB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Swift-Concurrency-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -575,6 +578,7 @@
 				DEVELOPMENT_TEAM = 4VAZE7CCFB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Swift-Concurrency-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

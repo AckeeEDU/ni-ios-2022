@@ -138,20 +138,20 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct WidgetEntryView : View {
-    var entry: Provider.Entry
+    let entry: Provider.Entry
 
     var body: some View {
         if let post2 = entry.post2 {
             HStack {
                 Link(destination: WidgetLink(postID: entry.post1.id).url) {
-                    PostView(post: entry.post1)
+                    PostView(post: entry.post1, useBold: entry.configuration.usesBoldFont?.boolValue ?? false)
                 }
                 Link(destination: WidgetLink(postID: post2.id).url) {
-                    PostView(post: post2)
+                    PostView(post: post2, useBold: entry.configuration.usesBoldFont?.boolValue ?? false)
                 }
             }
         } else {
-            PostView(post: entry.post1)
+            PostView(post: entry.post1, useBold: entry.configuration.usesBoldFont?.boolValue ?? false)
                 .widgetURL(WidgetLink(postID: entry.post1.id).url)
         }
     }
@@ -159,6 +159,7 @@ struct WidgetEntryView : View {
 
 struct PostView: View {
     let post: Provider.Entry.Post
+    let useBold: Bool
 
     var body: some View {
         ZStack {
@@ -176,7 +177,13 @@ struct PostView: View {
 
             VStack(alignment: .leading) {
                 Text(post.text).bold()
-                Text(post.postedAt, format: .dateTime).italic()
+
+                if useBold {
+                    Text(post.postedAt, format: .dateTime).italic().bold()
+                } else {
+                    Text(post.postedAt, format: .dateTime).italic()
+                }
+
             }.foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .bottom)
