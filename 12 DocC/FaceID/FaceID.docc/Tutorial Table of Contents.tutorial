@@ -1,0 +1,11 @@
+@Tutorials(name: "FaceID") {
+    @Intro(title: "How to integrate FaceID") {
+        Hojky bojky
+    }
+    
+    @Chapter(name: "Essentials") {
+        The essentials things about FaceID
+        
+        @TutorialReference(tutorial: "doc:FaceID")
+    }
+}

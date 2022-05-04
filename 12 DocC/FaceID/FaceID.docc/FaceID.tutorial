@@ -1,0 +1,33 @@
+@Tutorial(time: 15) {
+    @Intro(title: "FaceID") {
+        How to integrate biometrics into your apps
+    }
+    
+    @Section(title: "FaceID") {
+        @ContentAndMedia {
+            Už fakt nevím, co tam mám psát :D
+        }
+        
+        @Steps {
+            @Step {
+                Create `CAContext`
+                
+                @Code(name: "FaceID.swift", file: 01.swift)
+            }
+            
+            @Step {
+                Check for permissions
+                
+                @Code(name: "FaceID.swift", file: 02.swift)
+            }
+            
+            You have to create a property of type `NSError` because this is an old Objective-C API where errors where passed to functions as references.
+            
+            @Step {
+                Use biometry to authenticate the user.
+                
+                @Code(name: "FaceID.swift", file: 03.swift)
+            }
+        }
+    }
+}
